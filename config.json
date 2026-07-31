@@ -1,0 +1,17 @@
+{
+  "_comment": "Confirmed against the live AMX response 2026-07-30. The board nests price and yield as objects; fetch.py flattens them to price_* and yield_*. Instrument detail fields are prefixed i_. First match wins.",
+  "price": ["price_bid", "price_ask", "price_close", "price_avg"],
+  "coupon": ["i_cpn_rate"],
+  "maturity": ["maturity_date", "i_maturity_date"],
+  "currency": ["cur", "i_currency"],
+  "issuer": ["short_name_en", "i_issuer_name_en"],
+  "bond_type": ["i_isin_class", "i_instrument_type_en"],
+  "volume": ["vol"],
+  "trades": ["trades_number"],
+  "coupon_freq": ["i_cpn_frequency_en"],
+  "last_trade_date": ["last_date"],
+  "outstanding": ["i_outst_volume_amd"],
+  "day_count": ["i_day_count"],
+  "coupon_dates": ["i_coupon_date"],
+  "par": ["i_per_value"]
+}

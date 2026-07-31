@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# config.json IS committed on purpose — it holds field-name mappings, no secrets,
+# and the GitHub Action needs it. Without it the dashboard builds from guessed
+# field names and renders blank columns that look like real empty data.
