@@ -1,0 +1,64 @@
+name: Daily AMX snapshot
+
+on:
+  schedule:
+    # 12:00 UTC = 16:00 Yerevan, comfortably after the 15:05 close.
+    # Weekdays only; AMX does not trade at weekends.
+    - cron: "0 12 * * 1-5"
+  workflow_dispatch:        # lets you trigger a run by hand from the Actions tab
+
+permissions:
+  contents: write           # to commit the day's rows back to the repo
+  pages: write
+  id-token: write
+
+concurrency:
+  group: amx-daily
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify the analytics before trusting any output
+        run: |
+          python3 analytics.py
+          python3 amx_schema.py
+
+      - name: Fetch today's snapshot
+        run: python3 fetch.py
+
+      - name: Rebuild dashboard
+        run: python3 build_dashboard.py
+
+      - name: Commit history
+        run: |
+          git config user.name  "amx-bot"
+          git config user.email "actions@github.com"
+          git add data/ docs/
+          if git diff --staged --quiet; then
+            echo "nothing changed today"
+          else
+            git commit -m "snapshot $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  publish:
+    needs: snapshot
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
